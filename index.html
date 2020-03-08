@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Force IE 8/9/10 to use its latest rendering engine -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Favicons Icons -->
+    <!--[if IE]><link rel="shortcut icon" href="assets/img/favicons/favicon.ico"><![endif]-->
+    <!-- Theme Color for Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#4285f4">
+    <!-- SAFARI Startup Image -->
+    <link rel="apple-touch-startup-image" href="icon.png">
+     <!-- for SEO -->
+    <meta name="keywords" content="html,css,javascript,bootstrap 4, moderen responsive">
+    <!-- Short description of the document (limit to 150 characters) -->
+    <!-- This content *may* be used as a part of search engine results. -->
+    <meta name="description" content="A description of the page">
+    <!-- Short description of your document's subject -->
+    <meta name="subject" content="your document's subject">
+    <!-- Name of web application (only should be used if the website is used as an app) -->
+    <meta name="application-name" content="Application Name">
+    
+    <title> - bootstrap4-boilerplate - </title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    
+    <!-- Including Bootstrap JS (with its jQuery dependency) so that dynamic components work -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"  crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- Leave those next 4 lines if you care about users using IE8 -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+
+
+    <!-- HEADER Start -->
+    <header>
+        <h2>A New Website</h2>
+    </header>
+    <!-- HEADER end   -->
+
+    <!-- MAIN CONTENT Start -->
+    <main>
+        <!-- GRID ROW Start -->
+        <div class="container py-5">
+            <!-- Row Start -->
+            <div class="row justify-content-center">
+                <!-- Col Start -->
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                    <div class="form-input">
+						<input id="file" type="file" />
+					</div>
+                    <div id="status">
+
+                    </div>
+                    <table id="result-table" class="table">
+                    <thead>
+                        <th>Entity</th>
+                        <th>Count</th>
+                        <th>Number of C4</th>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                    <th colspan="2" align="right">Estimated C4</th>
+                    <th id="totalBoom"></th>
+                    <tfoot>
+                    </table>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                    <h4>All entities in this base</h4>
+
+                    <table id="entity-table" class="table">
+                      <thead>
+                        <th>Entity</th>
+                        <th>Count</th>
+                    </thead>
+                    <tbody></tbody>
+                    </table>
+                </div>
+                <!-- Col End -->
+            </div>
+            <!-- Row End -->
+        </div>
+        <!-- GRID ROW End -->
+    </main>
+    <!-- MAIN CONTENT End -->
+
+    <!-- FOOTER Start -->
+    <footer class="">
+        <p>Copyright &copy; 2019 - Bootstrap</p>
+    </footer>
+    <!-- FOOTER End -->
+
+    <script>
+    $(document).ready(function(){
+        let itemList = {};
+        
+        let weaponOfChoise = 'explosive.timed';
+
+        let fileInput = 'file';
+        $('#'+fileInput).change(function(e){
+            var input = document.getElementById(fileInput);
+            var file = input.files[0];
+            var fr = new FileReader();
+            fr.onload = fileLoaded;
+            fr.readAsText(file);
+            //fr.readAsDataURL(file);
+		})
+
+        status('Loading items...');
+        jQuery.getJSON('https://raw.githubusercontent.com/brantje/rust-data/master/data/BoomData.json', function(result){
+            for(let key in result){
+                let item = result[key];
+                itemList[item.shortname] = item;
+			}
+            status('Items loaded!');
+		});
+
+
+        function fileLoaded(e){
+            $('#result-table tbody').html('<tr></tr>');
+            $('#entity-table tbody').html('<tr></tr>');
+            $('#totalBoom').html('');
+            let totals = {};
+
+            let contents = JSON.parse(e.target.result);
+            for(let entity of contents.entities) {
+                let probShortname = entity.prefabname.split('/').pop().replace('.prefab', '').replace('.deployed','').replace('_deployed','');
+                probShortname = probShortname.replace('woodbox', 'box.wooden');
+                if(itemList.hasOwnProperty(probShortname)){
+                   if(!totals.hasOwnProperty(probShortname)){
+                        totals[probShortname] = 0;
+				   }
+                   totals[probShortname]++;
+				}
+			}
+
+            var intresetingEntities = [
+                 'door.double.hinged.metal',
+                 'door.double.hinged.toptier',
+                 'door.double.hinged.wood',
+                 'door.hinged.meta',
+                 'door.hinged.toptier',
+                 'door.hinged.metal',
+                 'door.hinged.wood',
+                 'floor.ladder.hatch',
+                 'wall.window.glass.reinforced',
+                 'autoturret',
+                 'guntrap'
+			];
+
+            var boomTotal = 0;
+            for(let key in totals){
+                let ent = itemList[key];
+                let name = ent.displayName;
+                let thisEntityCount = totals[key];
+                if(ent.boomsRequired.length > 0 && intresetingEntities.indexOf(ent.shortname) > 0){
+                     for(let weapon of ent.boomsRequired){
+                        if(weapon.shortname == weaponOfChoise){
+                           let totalRequired = weapon.amount * thisEntityCount;
+                           boomTotal += totalRequired;
+                           let $row = $('<tr><td>'+name+'</td><td>'+ thisEntityCount +'</td><td>'+totalRequired+'</td></tr>');
+                            $('#result-table tbody').append($row);
+                            console.log(weapon)
+						}
+					 }
+				}
+
+                let $row = $('<tr><td>'+name+'</td><td>'+ thisEntityCount +'</td></tr>');
+                $('#entity-table tbody').append($row);
+                $('#totalBoom').html(boomTotal);
+			}
+		}
+
+        function status(str){
+            $('#status').html(str);
+		}
+	})
+    </script>
+
+
+  </body>
+</html>
+<!--
+    jQuery.getJSON('https://raw.githubusercontent.com/brantje/rust-data/master/data/ItemList.json', function(result){
+            //$.get('https://cors-anywhere.herokuapp.com/https://rustlabs.com/item/armored-door#tab=destroyed-by', function(r) {console.log(r) });
+            for(let item of result.AllItemsAvailable){
+                rawItemList.push(item);
+
+                toProcess.push(item);
+			}
+            fetchBoomData();
+		});
+
+        function fetchBoomData(){
+            let item = toProcess.shift();
+            status('Fetching boom data for '+ item.displayName +'. '+ toProcess.length +' items left to process, please wait');
+
+            let seoName = item.displayName.toLowerCase().split(' ').join('-');
+            $.get('http://51.38.69.185:8080/https://rustlabs.com/item/'+ seoName, function(result){
+                let $document = $(result);
+                item.boomsRequired = [];
+
+                if($document.find('li[data-name="destroyed-by"]').length > 0) {
+                    let $boomTable = $($document.find('div[data-name="destroyed-by"] table'));
+                    $boomTable.find('tbody tr').each(function(key, row){
+                        let $item = $(row).find('td').eq(1);
+                        let sulfur = $(row).find('td').eq(3).text().trim().replace(',','').substr(1);
+                        let amount = $(row).find('td').eq(4).text().trim().replace('×', '');
+                        if(sulfur > 0){
+                            $item.find('.caption-in-item-name').remove();
+                            let itemName = $item.text().trim();
+                            let rawItem = rawItemList.filter(function(value){
+                                return value.displayName == itemName
+						    });
+                            if(rawItem.length > 0){
+                                rawItem = rawItem.shift();
+                                let boom = {
+                                  shortname: rawItem.shortname,
+                                  amount: amount,
+                                  sulfurRequired: sulfur
+						        }
+                                item.boomsRequired.push(boom);
+						    }
+                        }
+                    });
+				}
+
+                itemList[item.shortname] = item;
+
+                if(toProcess.length > 0){
+                    setTimeout(function(){
+                        fetchBoomData();                           
+					}, 500)
+				} else {
+                    status('Done!');
+                    console.log(JSON.stringify(itemList));
+
+				}
+			}).fail(function(){
+                itemList[item.shortname] = item;
+                setTimeout(function(){
+                    fetchBoomData();                           
+				}, 500)     
+			})
+		}
+
+-->
