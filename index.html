@@ -137,7 +137,7 @@
                 $('#result-table tbody').html('<tr></tr>');
                 $('#entity-table tbody').html('<tr></tr>');
                 $('#totalBoom').html('');
-                let totals = {};
+                let unordered = {};
 
                 let contents = JSON.parse(e.target.result);
                 for (let entity of contents.entities) {
@@ -145,11 +145,16 @@
                     probShortname = probShortname.replace('woodbox', 'box.wooden');
                     if (itemList.hasOwnProperty(probShortname)) {
                         if (!totals.hasOwnProperty(probShortname)) {
-                            totals[probShortname] = 0;
+                            unordered[probShortname] = 0;
                         }
-                        totals[probShortname]++;
+                        unordered[probShortname]++;
                     }
                 }
+
+                const totals = {};
+                Object.keys(unordered).sort().forEach(function(key) {
+                    totals[key] = unordered[key];
+                });
 
                 var intresetingEntities = [
                     'door.double.hinged.metal',
