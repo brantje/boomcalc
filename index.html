@@ -144,14 +144,14 @@
                     let probShortname = entity.prefabname.split('/').pop().replace('.prefab', '').replace('.deployed', '').replace('_deployed', '');
                     probShortname = probShortname.replace('woodbox', 'box.wooden');
                     if (itemList.hasOwnProperty(probShortname)) {
-                        if (!totals.hasOwnProperty(probShortname)) {
+                        if (!unordered.hasOwnProperty(probShortname)) {
                             unordered[probShortname] = 0;
                         }
                         unordered[probShortname]++;
                     }
                 }
 
-                const totals = {};
+                let totals = {};
                 Object.keys(unordered).sort().forEach(function(key) {
                     totals[key] = unordered[key];
                 });
